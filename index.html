@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="./base.css" />
   <link rel="stylesheet" href="./index.css" />
   <script src="./js/vue.js" defer></script>
-  <script src="./js/todo-model.js" defer></script>
   <script src="./js/index.js" defer></script>
 </head>
 
@@ -15,35 +14,37 @@
   <section class="todoapp">
     <header class="header">
       <h1>todos</h1>
-      <input class="new-todo" placeholder="What needs to be done?" autofocus />
+      <input class="new-todo" placeholder="What needs to be done?" @keyup.enter="addTodo" @blur="addTodo"
+        v-model="value" autofocus />
     </header>
     <section class="main">
-      <input id="toggle-all" class="toggle-all" type="checkbox" />
-      <label for="toggle-all">Mark all as complete</label>
+      <input id="toggle-all" class="toggle-all" type="checkbox" v-model="toggleAll" @click="completeAll" />
+      <label for="toggle-all" v-show="!!todoList.length">Mark all as complete</label>
       <ul class="todo-list">
-        <li v-for="todo in todoList" v-bind:data-id="todo.id" class="">
+        <li class="todo" v-for="(todo, index) in filterList" v-bind:key="todo.id" :class="{completed : todo.checked}">
           <div class="view">
-            <input class="toggle" type="checkbox">
+            <input class="toggle" type="checkbox" v-model='todo.checked'>
             <label>{{todo.value}}</label>
-            <button class="destroy"></button>
+            <button class="destroy" @click='removeTodo(todo.id)'></button>
           </div>
         </li>
       </ul>
     </section>
-    <footer class="footer" v-if="todoList.length > 0">
-      <span class="todo-count"></span>
+    <footer class="footer" v-show="!!todoList.length">
+      <span class="todo-count"><strong>{{todoList.filter(e => !e.checked).length}}</strong> items left</span>
       <ul class="filters">
         <li>
-          <a href="#/" class="selected">All</a>
+          <a href="#/" :class="{selected: filter ==='all'}" @click="changeFilter('all')">All</a>
         </li>
         <li>
-          <a href="#/active">Active</a>
+          <a href="#/active" :class="{selected: filter ==='active'}" @click="changeFilter('active')">Active</a>
         </li>
         <li>
-          <a href="#/completed">Completed</a>
+          <a href="#/completed" :class="{selected: filter ==='completed'}"
+            @click="changeFilter('completed')">Completed</a>
         </li>
       </ul>
-      <button class="clear-completed">Clear completed</button>
+      <button class="clear-completed" @click="clearCompleted">Clear completed</button>
     </footer>
   </section>
   <footer class="info">
